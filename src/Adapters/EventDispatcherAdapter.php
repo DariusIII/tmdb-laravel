@@ -43,7 +43,7 @@ abstract class EventDispatcherAdapter implements SymfonyDispatcher
      * @return object
      * @api
      */
-    public function dispatch(object $event = null, string $eventName = null) : object
+    public function dispatch($event = null, string $eventName = null) : object
     {
         $this->laravelDispatcher->dispatch($event, $eventName);
         $this->symfonyDispatcher->dispatch($event, $eventName);
@@ -109,7 +109,7 @@ abstract class EventDispatcherAdapter implements SymfonyDispatcher
      *
      * @return array The event listeners for the specified event, or all event listeners by event name
      */
-    public function getListeners(string $eventName = null)
+    public function getListeners($eventName = null)
     {
         return $this->symfonyDispatcher->getListeners($eventName);
     }
@@ -121,7 +121,7 @@ abstract class EventDispatcherAdapter implements SymfonyDispatcher
      *
      * @return bool true if the specified event has any listeners, false otherwise
      */
-    public function hasListeners(string $eventName = null)
+    public function hasListeners($eventName = null)
     {
         return ($this->symfonyDispatcher->hasListeners($eventName) ||
             $this->laravelDispatcher->hasListeners($eventName));
