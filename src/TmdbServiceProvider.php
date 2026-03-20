@@ -20,8 +20,6 @@ use Tmdb\Client;
 use Symfony\Component\EventDispatcher\EventDispatcherInterface;
 use Symfony\Component\EventDispatcher\EventDispatcher;
 use Tmdb\Laravel\Adapters\EventDispatcherAdapter;
-use Tmdb\Model\Configuration;
-use Tmdb\Repository\ConfigurationRepository;
 use Tmdb\Token\Api\ApiToken;
 
 class TmdbServiceProvider extends ServiceProvider
@@ -59,7 +57,7 @@ class TmdbServiceProvider extends ServiceProvider
      */
     public function boot()
     {
-        return $this->provider->boot();
+        $this->provider->boot();
     }
 
     /**
@@ -111,6 +109,8 @@ class TmdbServiceProvider extends ServiceProvider
             $ed->addListener(BeforeRequestEvent::class, $userAgentListener);
             return $client;
         });
+
+        $this->app->alias(Client::class, 'tmdb');
     }
 
     /**
@@ -129,6 +129,6 @@ class TmdbServiceProvider extends ServiceProvider
      */
     public function provides()
     {
-        return array('tmdb');
+        return [Client::class, 'tmdb'];
     }
 }

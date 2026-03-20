@@ -7,6 +7,7 @@
 namespace Tmdb\Laravel\Facades;
 
 use Illuminate\Support\Facades\Facade;
+use Tmdb\Client;
 
 class Tmdb extends Facade {
 
@@ -17,7 +18,7 @@ class Tmdb extends Facade {
      */
     protected static function getFacadeAccessor()
     {
-        return 'Tmdb\Client';
+        return Client::class;
     }
 
 }

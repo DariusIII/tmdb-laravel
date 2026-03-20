@@ -6,7 +6,7 @@
 
 A Laravel package that provides easy access to the [php-tmdb/api](https://github.com/php-tmdb/api) TMDB (The Movie Database) API wrapper.
 This package comes with a service provider that configures the `Tmdb\Client` and registers it to the IoC container.
-Both Laravel 5 and 6 are supported.
+Supports Laravel 8 through 13.
 
 [![Latest Stable Version](https://poser.pugx.org/dariusiii/tmdb-laravel/v/stable.svg)](https://packagist.org/packages/dariusiii/tmdb-laravel)
 [![Latest Unstable Version](https://poser.pugx.org/dariusiii/tmdb-laravel/v/unstable.svg)](https://packagist.org/packages/dariusiii/tmdb-laravel)
@@ -35,7 +35,7 @@ composer require dariusiii/tmdb-laravel
 
 ## Configuration
 
-Add `config/app.php` (Laravel <5.5) the service provider:
+Laravel will auto-discover the package on supported versions. If you prefer to register it manually, add the service provider to `config/app.php`:
 
 ```php
 'providers' => array(
@@ -47,10 +47,8 @@ Add `config/app.php` (Laravel <5.5) the service provider:
 
 Then publish the configuration file:
 
-### Laravel 5
-
 ```
-php artisan vendor:publish --provider="Tmdb\Laravel\TmdbServiceProviderLaravel5"
+php artisan vendor:publish --provider="Tmdb\Laravel\TmdbServiceProvider"
 ```
 
 Next you can modify the generated configuration file `tmdb.php` accordingly.
@@ -67,7 +65,7 @@ The example below shows how you can use the `Tmdb` facade.
 If you don't want to keep adding the `use Tmdb\Laravel\Facades\Tmdb;` statement in your files, then you can also add the facade as an alias in `config/app.php` file.
 
 ```php
-use Tmdb\Laravel\Facades\Tmdb; // optional for Laravel ≥5.5
+use Tmdb\Laravel\Facades\Tmdb;
 
 class MoviesController {
 
@@ -107,18 +105,17 @@ We can easily listen to events that are dispatched using the Laravel event dispa
 The following example listens to any request that is made and logs a message.
 
 ```php
-use Log;
 use Event;
-use Tmdb\Event\TmdbEvents;
+use Illuminate\Support\Facades\Log;
 use Tmdb\Event\RequestEvent;
 
-Event::listen(TmdbEvents::REQUEST, function(RequestEvent $event) {
+Event::listen(RequestEvent::class, function (RequestEvent $event) {
     Log::info("A request was made to TMDB");
     // do stuff with $event
 });
 ```
 
-In Laravel 5 instead of using the `Event` facade we could also have used the `EventServiceProvider` to register our event listener.
+You can also register the same listener in your application's `EventServiceProvider`.
 
 ### Image helper
 
@@ -162,28 +159,31 @@ class WelcomeController extends Controller {
 
 The `Configuration` used by the `Tmdb\Helper\ImageHelper` is automatically loaded by the IoC container.
 
-### Registering plugins
+### Customizing outgoing requests
 
-Plugins can be registered in a service provider using the `boot()` method.
+You can customize outgoing requests by listening for `BeforeRequestEvent` in one of your application's service providers.
 
 ```php
 namespace App\Providers;
 
+use Event;
 use Illuminate\Support\ServiceProvider;
-use Tmdb\HttpClient\Plugin\LanguageFilterPlugin;
+use Tmdb\Event\BeforeRequestEvent;
 
 class TmdbServiceProvider extends ServiceProvider {
 
     /**
-     * Add a Dutch language filter to the Tmdb client
+     * Customize TMDB requests before they are sent.
      *
      * @return void
      */
     public function boot()
     {
-        $plugin = new LanguageFilterPlugin('nl');
-        $client = $this->app->make('Tmdb\Client');
-        $client->getHttpClient()->addSubscriber($plugin);
+        Event::listen(BeforeRequestEvent::class, function (BeforeRequestEvent $event) {
+            $request = $event->getRequest()->withHeader('Accept-Language', 'nl-NL');
+
+            $event->setRequest($request);
+        });
     }
 
     /**

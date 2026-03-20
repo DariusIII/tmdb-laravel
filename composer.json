@@ -11,16 +11,16 @@
     "license": "MIT",
     "require": {
         "php": ">=8.3",
-        "illuminate/support": "^8.0|^9.0|^10.0|^11.0|^12.0",
-        "php-tmdb/api": "^5.0",
+        "illuminate/support": "^8.0|^9.0|^10.0|^11.0|^12.0|^13.0",
+        "php-tmdb/api": "^6.0",
         "nyholm/psr7": "^1.8",
         "guzzlehttp/guzzle": "^7.2"
     },
     "require-dev": {
-        "phpunit/phpunit": "^7.0|^8.0|^9.0|^10.0|^11.0",
+        "phpunit/phpunit": "^12.0",
         "symfony/event-dispatcher": "^6.0|^7.0",
         "psr/event-dispatcher": "^1.0",
-        "illuminate/events": "^8.0|^9.0|^10.0|^11.0|^12.0",
+        "illuminate/events": "^8.0|^9.0|^10.0|^11.0|^12.0|^13.0",
         "doctrine/cache": "^2.2",
         "monolog/monolog": "^3.0"
     },
@@ -37,6 +37,11 @@
     "autoload": {
         "psr-4": {
             "Tmdb\\Laravel\\": "src/"
+        }
+    },
+    "autoload-dev": {
+        "psr-4": {
+            "Tmdb\\Laravel\\Adapters\\Tests\\": "tests/Adapters/"
         }
     },
     "minimum-stability": "stable",
