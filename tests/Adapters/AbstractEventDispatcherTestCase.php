@@ -11,29 +11,33 @@
 
 namespace Tmdb\Laravel\Adapters\Tests;
 
+use Illuminate\Contracts\Events\Dispatcher as LaravelDispatcher;
+use PHPUnit\Framework\MockObject\MockObject;
 use PHPUnit\Framework\TestCase;
 use Symfony\Component\EventDispatcher\EventSubscriberInterface;
+use Symfony\Component\EventDispatcher\EventDispatcherInterface as SymfonyDispatcher;
+use Tmdb\Laravel\Adapters\EventDispatcherAdapter;
 
 abstract class AbstractEventDispatcherTestCase extends TestCase
 {
     public const EVENT = 'foo';
 
-    /**
-     * @var mixed
-     */
-    protected $dispatcher;
+    protected EventDispatcherAdapter $dispatcher;
 
-    protected $laravel;
-    protected $symfony;
+    /** @var LaravelDispatcher&MockObject */
+    protected LaravelDispatcher $laravel;
+
+    /** @var SymfonyDispatcher&MockObject */
+    protected SymfonyDispatcher $symfony;
 
     protected function setUp(): void
     {
         $this->dispatcher = $this->createEventDispatcher();
     }
 
-    abstract protected function createEventDispatcher();
+    abstract protected function createEventDispatcher(): EventDispatcherAdapter;
 
-    public function testItDispatchesEventsThroughBothLaravelAndSymfony()
+    public function testItDispatchesEventsThroughBothLaravelAndSymfony(): void
     {
         $event = new \stdClass();
 
@@ -51,7 +55,7 @@ abstract class AbstractEventDispatcherTestCase extends TestCase
         $this->assertSame($event, $this->dispatcher->dispatch($event, static::EVENT));
     }
 
-    public function testItAddsListenersToTheSymfonyDispatcher()
+    public function testItAddsListenersToTheSymfonyDispatcher(): void
     {
         $listener = [$this, 'listener'];
 
@@ -65,7 +69,7 @@ abstract class AbstractEventDispatcherTestCase extends TestCase
         $this->dispatcher->addListener(static::EVENT, $listener, 1);
     }
 
-    public function testItAddsASubscriberToTheSymfonyDispatcher()
+    public function testItAddsASubscriberToTheSymfonyDispatcher(): void
     {
         $subscriber = $this->createSubscriber();
 
@@ -79,7 +83,7 @@ abstract class AbstractEventDispatcherTestCase extends TestCase
         $this->dispatcher->addSubscriber($subscriber);
     }
 
-    public function testItRemovesListenersFromTheSymfonyDispatcher()
+    public function testItRemovesListenersFromTheSymfonyDispatcher(): void
     {
         $listener = [$this, 'listener'];
 
@@ -93,7 +97,7 @@ abstract class AbstractEventDispatcherTestCase extends TestCase
         $this->dispatcher->removeListener(static::EVENT, $listener);
     }
 
-    public function testItRemovesSubscriptionsFromTheSymfonyDispatcher()
+    public function testItRemovesSubscriptionsFromTheSymfonyDispatcher(): void
     {
         $subscriber = $this->createSubscriber();
 
@@ -110,7 +114,7 @@ abstract class AbstractEventDispatcherTestCase extends TestCase
     /**
      * We are not checking Laravel's listeners as its interface does not contain a getListeners function.
      */
-    public function testItGetsListenersFromTheSymfonyDispatcher()
+    public function testItGetsListenersFromTheSymfonyDispatcher(): void
     {
         $this->expectNoLaravelDispatcherInteraction();
 
@@ -123,7 +127,7 @@ abstract class AbstractEventDispatcherTestCase extends TestCase
         $this->assertEquals(['foo'], $this->dispatcher->getListeners(static::EVENT));
     }
 
-    public function testItAsksTheSymfonyDispatcherIfItHasAListener()
+    public function testItAsksTheSymfonyDispatcherIfItHasAListener(): void
     {
         $this->laravel
             ->expects($this->never())
@@ -138,7 +142,7 @@ abstract class AbstractEventDispatcherTestCase extends TestCase
         $this->assertTrue($this->dispatcher->hasListeners(static::EVENT));
     }
 
-    public function testItAsksTheLaravelDispatcherIfItHasAListener()
+    public function testItAsksTheLaravelDispatcherIfItHasAListener(): void
     {
         $this->symfony
             ->expects($this->once())
@@ -155,7 +159,7 @@ abstract class AbstractEventDispatcherTestCase extends TestCase
         $this->assertTrue($this->dispatcher->hasListeners(static::EVENT));
     }
 
-    public function testItAsksBothTheSymfonyAndLaravelDispatcherIfItHasAListener()
+    public function testItAsksBothTheSymfonyAndLaravelDispatcherIfItHasAListener(): void
     {
         $this->symfony
             ->expects($this->once())
@@ -175,7 +179,7 @@ abstract class AbstractEventDispatcherTestCase extends TestCase
     /**
      * We are not checking Laravel's listeners as its interface does not contain a getListenerPriority function.
      */
-    public function testItAsksTheSymfonyDispatcherForAListenersPriority()
+    public function testItAsksTheSymfonyDispatcherForAListenersPriority(): void
     {
         $listener = [$this, 'listener'];
 

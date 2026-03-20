@@ -6,6 +6,7 @@
  */
 namespace Tmdb\Laravel\Adapters;
 
+use Illuminate\Contracts\Events\Dispatcher as LaravelDispatcher;
 use Symfony\Component\EventDispatcher\EventSubscriberInterface;
 use Symfony\Component\EventDispatcher\EventDispatcherInterface as SymfonyDispatcher;
 
@@ -22,13 +23,13 @@ abstract class EventDispatcherAdapter implements SymfonyDispatcher
      * The Laravel Events Dispatcher
      * @var \Illuminate\Contracts\Events\Dispatcher | \Illuminate\Events\Dispatcher
      */
-    protected $laravelDispatcher;
+    protected LaravelDispatcher $laravelDispatcher;
 
     /**
      * The Symfony Event Dispatcher
      * @var  \Symfony\Component\EventDispatcher\EventDispatcherInterface
      */
-    protected $symfonyDispatcher;
+    protected SymfonyDispatcher $symfonyDispatcher;
 
     /**
      * Dispatches an event to all registered listeners.
@@ -82,11 +83,11 @@ abstract class EventDispatcherAdapter implements SymfonyDispatcher
      * Removes an event listener from the specified events.
      *
      * @param string   $eventName The event to remove a listener from
-     * @param callable $listenerToBeRemoved The listener to remove
+     * @param callable $listener The listener to remove
      */
-    public function removeListener(string $eventName, callable $listenerToBeRemoved): void
+    public function removeListener(string $eventName, callable $listener): void
     {
-        $this->symfonyDispatcher->removeListener($eventName, $listenerToBeRemoved);
+        $this->symfonyDispatcher->removeListener($eventName, $listener);
     }
 
     /**
@@ -104,7 +105,7 @@ abstract class EventDispatcherAdapter implements SymfonyDispatcher
      *
      * @param string|null $eventName The name of the event
      *
-     * @return array The event listeners for the specified event, or all event listeners by event name
+     * @return array<callable[]|callable> The event listeners for the specified event, or all event listeners by event name
      */
     public function getListeners(?string $eventName = null): array
     {
@@ -120,8 +121,15 @@ abstract class EventDispatcherAdapter implements SymfonyDispatcher
      */
     public function hasListeners(?string $eventName = null): bool
     {
-        return ($this->symfonyDispatcher->hasListeners($eventName) ||
-            $this->laravelDispatcher->hasListeners($eventName));
+        if ($this->symfonyDispatcher->hasListeners($eventName)) {
+            return true;
+        }
+
+        if ($eventName === null) {
+            return false;
+        }
+
+        return $this->laravelDispatcher->hasListeners($eventName);
     }
 
     /**

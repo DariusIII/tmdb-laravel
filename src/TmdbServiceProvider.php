@@ -34,9 +34,9 @@ class TmdbServiceProvider extends ServiceProvider
     /**
      * Actual provider
      *
-     * @var \Illuminate\Support\ServiceProvider
+     * @var TmdbServiceProviderLaravel
      */
-    protected $provider;
+    protected TmdbServiceProviderLaravel $provider;
 
     /**
      * Construct the TMDB service provider
@@ -55,7 +55,7 @@ class TmdbServiceProvider extends ServiceProvider
      *
      * @return void
      */
-    public function boot()
+    public function boot(): void
     {
         $this->provider->boot();
     }
@@ -65,7 +65,7 @@ class TmdbServiceProvider extends ServiceProvider
      *
      * @return void
      */
-    public function register()
+    public function register(): void
     {
         // Configure any bindings that are version dependent
         $this->provider->register();
@@ -77,7 +77,7 @@ class TmdbServiceProvider extends ServiceProvider
         );
 
         // Setup default configurations for the Tmdb Client
-        $this->app->singleton(Client::class, function() {
+        $this->app->singleton(Client::class, function (): Client {
             $config = $this->provider->config();
 
             $ed = $this->app->make(EventDispatcherAdapter::class);
@@ -116,7 +116,7 @@ class TmdbServiceProvider extends ServiceProvider
     /**
      * Register the ServiceProvider
      */
-    private function registerProvider()
+    private function registerProvider(): void
     {
         $app = $this->app;
         $this->provider = new TmdbServiceProviderLaravel($app);
@@ -125,9 +125,9 @@ class TmdbServiceProvider extends ServiceProvider
     /**
      * Get the services provided by the provider.
      *
-     * @return array
+     * @return array<int, string>
      */
-    public function provides()
+    public function provides(): array
     {
         return [Client::class, 'tmdb'];
     }

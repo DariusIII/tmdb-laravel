@@ -12,7 +12,7 @@ use Tmdb\Laravel\Adapters\EventDispatcherLaravel as AdapterDispatcher;
 
 class EventDispatcherLaravel5Test extends AbstractEventDispatcherTestCase
 {
-    protected function createEventDispatcher()
+    protected function createEventDispatcher(): AdapterDispatcher
     {
         $this->laravel = $this->createMock(LaravelDispatcher::class);
         $this->symfony = $this->createMock(SymfonyDispatcher::class);

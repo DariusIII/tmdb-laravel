@@ -6,6 +6,8 @@
  */
 namespace Tmdb\Laravel;
 
+use Tmdb\Laravel\Adapters\EventDispatcherAdapter;
+use Tmdb\Laravel\Adapters\EventDispatcherLaravel;
 use Illuminate\Support\ServiceProvider;
 
 class TmdbServiceProviderLaravel extends ServiceProvider {
@@ -15,10 +17,10 @@ class TmdbServiceProviderLaravel extends ServiceProvider {
      *
      * @return void
      */
-    public function boot()
+    public function boot(): void
     {
         $this->publishes([
-            $this->defaultConfig() => config_path('tmdb.php'),
+            $this->defaultConfig() => $this->app->configPath('tmdb.php'),
         ]);
     }
 
@@ -27,11 +29,11 @@ class TmdbServiceProviderLaravel extends ServiceProvider {
      *
      * @return void
      */
-    public function register()
+    public function register(): void
     {
         $this->setupConfiguration();
 
-        $this->app->bind('Tmdb\Laravel\Adapters\EventDispatcherAdapter', 'Tmdb\Laravel\Adapters\EventDispatcherLaravel');
+        $this->app->bind(EventDispatcherAdapter::class, EventDispatcherLaravel::class);
     }
 
     /**
@@ -39,9 +41,20 @@ class TmdbServiceProviderLaravel extends ServiceProvider {
      *
      * @return array
      */
-    public function config()
+    /**
+     * @return array{api_key: string}
+     */
+    public function config(): array
     {
-        return $this->app['config']->get('tmdb');
+        $config = $this->app['config']->get('tmdb');
+
+        if (! is_array($config)) {
+            return ['api_key' => ''];
+        }
+
+        return [
+            'api_key' => isset($config['api_key']) ? (string) $config['api_key'] : '',
+        ];
     }
 
     /**
@@ -49,7 +62,7 @@ class TmdbServiceProviderLaravel extends ServiceProvider {
      *
      * @return  void
      */
-    private function setupConfiguration()
+    private function setupConfiguration(): void
     {
         $config = $this->defaultConfig();
         $this->mergeConfigFrom($config, 'tmdb');
@@ -60,7 +73,7 @@ class TmdbServiceProviderLaravel extends ServiceProvider {
      *
      * @return string
      */
-    private function defaultConfig()
+    private function defaultConfig(): string
     {
         return __DIR__ . '/config/tmdb.php';
     }

@@ -59,6 +59,15 @@ That's all! Fire away!
 
 We can choose to either use the `Tmdb` Facade, or to use dependency injection.
 
+## Development
+
+Run the package quality checks locally with Composer scripts:
+
+```bash
+composer test
+composer phpstan
+```
+
 ### Facade example
 
 The example below shows how you can use the `Tmdb` facade.

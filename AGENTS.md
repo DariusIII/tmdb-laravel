@@ -30,12 +30,15 @@
 
 ## Tests and validation
 - Tests are PHPUnit 12-based.
+- Static analysis uses `phpstan/phpstan` with `phpstan/phpstan-phpunit`; the project config is `phpstan.neon.dist` and currently runs at level 6 over `src/` and `tests/`.
 - Test discovery is configured in `phpunit.xml` and only picks up files ending in `*Test.php`.
 - Adapter behavior is covered in `tests/Adapters/AbstractEventDispatcherTestCase.php` and `tests/Adapters/EventDispatcherLaravel5Test.php`.
 - Use native PHPUnit mocks in tests; PHPUnit 12 is stricter about mocks without expectations, so prefer explicit expectations or concrete stubs where no interaction is expected. Do not reintroduce legacy Prophecy-based helpers without also restoring the required setup.
 - Before finishing a change, run:
   - `composer validate --no-interaction`
   - `php vendor/bin/phpunit --no-coverage`
+  - `php vendor/bin/phpstan analyse`
+- Contributor-friendly Composer scripts mirror the main checks: `composer test` runs PHPUnit and `composer phpstan` runs static analysis.
 - If dependency constraints changed, also verify with a targeted Composer update, for example:
   - `composer update php-tmdb/api illuminate/support illuminate/events --with-all-dependencies --no-interaction`
 
